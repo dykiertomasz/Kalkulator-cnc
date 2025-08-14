@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>CNC Calc (PWA)</title>
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CNC Calc">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>CNC Calc</h1>
+    <p>Przeliczniki obróbki skrawaniem — działa offline</p>
+  </header>
+
+  <main>
+    <nav class="tabs" id="tabs">
+      <button data-tab="rpm">RPM ↔ vc</button>
+      <button data-tab="feed">Feedrate</button>
+      <button data-tab="chipload">Chip load</button>
+      <button data-tab="passes">Liczba przejść</button>
+      <button data-tab="path">Długość drogi</button>
+      <button data-tab="units">Konwersje</button>
+    </nav>
+
+    <section class="tab active" id="tab-rpm">
+      <h2>Obroty wrzeciona (RPM) ↔ prędkość skrawania (vc)</h2>
+      <div class="card">
+        <label>Średnica narzędzia D [mm] <input id="rpm-D" type="number" step="0.01"></label>
+        <label>Prędkość skrawania vc [m/min] <input id="rpm-vc" type="number" step="0.01"></label>
+        <div class="actions">
+          <button id="btn-rpm">Oblicz RPM</button>
+          <button id="btn-vc">Oblicz vc</button>
+        </div>
+        <output id="rpm-out"></output>
+      </div>
+      <p class="hint">Wzory: RPM = (1000 · vc) / (π · D), &nbsp; vc = (π · D · RPM)/1000</p>
+    </section>
+
+    <section class="tab" id="tab-feed">
+      <h2>Prędkość posuwu (Feedrate)</h2>
+      <div class="card">
+        <label>Feed na ząb f<sub>z</sub> [mm/ząb] <input id="feed-fz" type="number" step="0.001"></label>
+        <label>Liczba zębów z <input id="feed-z" type="number" step="1"></label>
+        <label>Obroty RPM <input id="feed-rpm" type="number" step="1"></label>
+        <button id="btn-feedrate">Oblicz feedrate</button>
+        <output id="feed-out"></output>
+      </div>
+      <div class="card">
+        <label>Feed na obrót f<sub>n</sub> [mm/obr] <input id="feed-fn" type="number" step="0.01"></label>
+        <label>Obroty RPM <input id="feed-rpm2" type="number" step="1"></label>
+        <button id="btn-feedrate2">Oblicz z f<sub>n</sub></button>
+        <output id="feed-out2"></output>
+      </div>
+      <p class="hint">Wzory: v<sub>f</sub> = f<sub>z</sub> · z · RPM; &nbsp; v<sub>f</sub> = f<sub>n</sub> · RPM</p>
+    </section>
+
+    <section class="tab" id="tab-chipload">
+      <h2>Chip load (f<sub>z</sub>)</h2>
+      <div class="card">
+        <label>Feedrate v<sub>f</sub> [mm/min] <input id="cl-vf" type="number" step="0.01"></label>
+        <label>Liczba zębów z <input id="cl-z" type="number" step="1"></label>
+        <label>Obroty RPM <input id="cl-rpm" type="number" step="1"></label>
+        <button id="btn-cl">Oblicz f<sub>z</sub></button>
+        <output id="cl-out"></output>
+      </div>
+      <p class="hint">Wzór: f<sub>z</sub> = v<sub>f</sub> / (z · RPM)</p>
+    </section>
+
+    <section class="tab" id="tab-passes">
+      <h2>Liczba przejść</h2>
+      <div class="card">
+        <label>Głębokość całkowita [mm] <input id="passes-total" type="number" step="0.01"></label>
+        <label>Głębokość na przejście a<sub>p</sub> [mm] <input id="passes-ap" type="number" step="0.01"></label>
+        <button id="btn-passes">Oblicz</button>
+        <output id="passes-out"></output>
+      </div>
+    </section>
+
+    <section class="tab" id="tab-path">
+      <h2>Długość drogi</h2>
+      <div class="card">
+        <label>X1 <input id="p-x1" type="number" step="0.001"></label>
+        <label>Y1 <input id="p-y1" type="number" step="0.001"></label>
+        <label>Z1 (opcjonalnie) <input id="p-z1" type="number" step="0.001"></label>
+        <label>X2 <input id="p-x2" type="number" step="0.001"></label>
+        <label>Y2 <input id="p-y2" type="number" step="0.001"></label>
+        <label>Z2 (opcjonalnie) <input id="p-z2" type="number" step="0.001"></label>
+        <button id="btn-path2d">Długość 2D</button>
+        <button id="btn-path3d">Długość 3D</button>
+        <output id="path-out"></output>
+      </div>
+    </section>
+
+    <section class="tab" id="tab-units">
+      <h2>Konwersje</h2>
+      <div class="card grid2">
+        <label>mm → inch <input id="mm" type="number" step="0.001"></label>
+        <button id="btn-mm2in">Przelicz</button>
+        <output id="mm-out"></output>
+
+        <label>inch → mm <input id="inch" type="number" step="0.0001"></label>
+        <button id="btn-in2mm">Przelicz</button>
+        <output id="inch-out"></output>
+
+        <label>m/min → mm/min <input id="mmin" type="number" step="0.01"></label>
+        <button id="btn-mmin2mmmin">Przelicz</button>
+        <output id="mmin-out"></output>
+
+        <label>mm/min → m/min <input id="mmmin" type="number" step="0.1"></label>
+        <button id="btn-mmmin2mmin">Przelicz</button>
+        <output id="mmmin-out"></output>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <small>© 2025 CNC Calc — PWA. Zainstaluj: Udostępnij → „Do ekranu początkowego” (iOS).</small>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
